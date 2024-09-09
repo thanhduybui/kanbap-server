@@ -41,8 +41,19 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseData> getTasks(@RequestParam("status") String status, @RequestParam("public") Boolean isPublic ) {
+    public ResponseEntity<ResponseData> getTasks(@RequestParam("status") String status, @RequestParam("isPublic") Boolean isPublic ) {
         ServiceResponse<?> serviceResponse = taskService.getTasks(status, isPublic);
+        return ResponseEntity.status(serviceResponse.getStatusCode())
+                .body(ResponseData.builder()
+                        .status(serviceResponse.getStatus())
+                        .message(serviceResponse.getMessage())
+                        .data(serviceResponse.getData())
+                        .build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseData> updateTask(@RequestBody @Valid TaskRequestBody requestBody, @PathVariable Long id){
+        ServiceResponse<?> serviceResponse = taskService.updateTask(requestBody, id);
         return ResponseEntity.status(serviceResponse.getStatusCode())
                 .body(ResponseData.builder()
                         .status(serviceResponse.getStatus())

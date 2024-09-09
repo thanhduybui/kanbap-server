@@ -34,7 +34,7 @@ public class LoggingAspect {
     public void repositoryPointcut() {
     }
 
-    @Pointcut("controllerPointcut() || servicePointcut() || repositoryPointcut()")
+    @Pointcut("controllerPointcut() || servicePointcut()")
     public void allPointcut() {
     }
 

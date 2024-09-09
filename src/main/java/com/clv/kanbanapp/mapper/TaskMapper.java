@@ -6,6 +6,7 @@ import com.clv.kanbanapp.dto.TaskRequestBody;
 import com.clv.kanbanapp.entity.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
@@ -19,4 +20,7 @@ public interface TaskMapper {
     TaskDTO toDTO(Task task);
 
     List<TaskDTO> toListTaskDTO(List<Task> tasks);
+
+    @Mapping(target = "tag", source = "tagId")
+    void updateTaskFromRequest(TaskRequestBody requestBody,@MappingTarget Task task);
 }

@@ -1,6 +1,7 @@
 package com.clv.kanbanapp.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
@@ -36,6 +37,7 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "assigned_user_id")
+    @JsonIgnore
     private AppUser assignedUser;
 
     @CreatedBy
@@ -51,9 +53,11 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "tag_id")
+    @JsonIgnore
     private TaskTag tag;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Comment> comments;
 
     @Column(name="due_time")
@@ -66,4 +70,9 @@ public class Task {
     @Column(name = "updated_date")
     @LastModifiedDate
     private Instant updatedDate;
+
+    @PrePersist
+    public void onCreate() {
+        System.out.println("Task created");
+    }
 }

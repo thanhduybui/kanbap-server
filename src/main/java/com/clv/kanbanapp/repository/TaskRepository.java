@@ -9,12 +9,42 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    List<Task> findByStatusAndGroupTaskAndCreatedByUser(TaskStatus status, boolean isPublic, String email);
-    @Query("SELECT t FROM Task t WHERE t.status = :status AND t.groupTask = :isGroupTask AND " +
-            "(t.createdByUser = :userEmail OR t.assignedUser.email = :userEmail)")
-    List<Task> findTasks(
+
+    @Query("SELECT t FROM Task t WHERE t.status = :status AND t.groupTask = false " +
+            "AND t.assignedUser.email = :userEmail ORDER BY t.position DESC")
+    List<Task> findPrivateTasks(
             @Param("status") TaskStatus status,
-            @Param("isGroupTask") boolean isPublic,
             @Param("userEmail") String userEmail
     );
+
+    @Query("SELECT t FROM Task t WHERE t.status = :status AND t.groupTask = true ORDER BY t.position DESC")
+    List<Task> findPublicTasksByStatus(TaskStatus status);
+
+
+//    @Query("SELECT t FROM Task t WHERE t.status = :status " +
+//            "AND ((:isGroupTask = true) OR " +
+//            "(:isGroupTask = false AND t.assignedUser.email = :userEmail))")
+//    List<Task> findTasks(
+//            @Param("status") TaskStatus status,
+//            @Param("isGroupTask") boolean isPublic,
+//            @Param("userEmail") String userEmail
+//    );
+
+
+
+    // find the max position of the task in the task list
+//    @Query("SELECT MAX(t.position) FROM Task t WHERE t.status = :status and t.groupTask = false " +
+//            "AND t.assignedUser.email = :userEmail")
+//    Integer findMaxPrivatePosition(@Param("status") TaskStatus status,
+//                            @Param("userEmail") String userEmail);
+//
+//    @Query("SELECT MAX(t.position) FROM Task t WHERE t.status = :status and t.groupTask = true")
+//    Integer findMaxPublicListPosition(TaskStatus status);
+
+    @Query("SELECT MAX(t.position) FROM Task t WHERE t.status = :status " +
+            "AND ((:isGroupTask = true) OR " +
+            "(:isGroupTask = false AND t.assignedUser.email = :userEmail))")
+    Integer findMaxPosition(@Param("status") TaskStatus status,
+                            @Param("userEmail") String userEmail,
+                            @Param("isGroupTask") boolean isPublic);
 }

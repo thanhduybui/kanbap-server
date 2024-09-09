@@ -8,10 +8,7 @@ import com.clv.kanbanapp.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
+
 
 @RequiredArgsConstructor
 @Service
@@ -20,17 +17,19 @@ public class TaskMapperHelper {
     private final TagRepository tagRepository;
     private final AppUserRepository appUserRepository;
     public TaskTag tagIdToTag(Integer tagId) {
+        if (tagId == null) {
+            return null;
+        }
         return tagRepository.findById(tagId).orElse(null);
     }
 
     public ProfileDTO emailToProfileDTO(String email) {
         AppUser appUser = appUserRepository.findByEmail(email).orElse(null);
         return ProfileDTO.builder()
-                .id(appUser.getUserId())
+                .userId(appUser.getUserId())
                 .username(appUser.getUsername())
                 .email(email)
                 .build();
     }
-
 
 }

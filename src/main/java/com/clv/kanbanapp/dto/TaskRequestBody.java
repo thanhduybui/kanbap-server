@@ -19,10 +19,10 @@ public class TaskRequestBody {
     @Pattern(regexp = "^(TODO|IN_PROGRESS|DONE|CANCEL)$", message = "Status must be one of: TODO, IN_PROGRESS, DONE, CANCEL")
     private String status;
 
-    @JsonAlias("is_group_task")
+
     private boolean groupTask;
 
-    @JsonAlias("due_time")
+
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$", message = "Due time must be in the format: yyyy-MM-ddTHH:mm:ssZ")
     private String dueTime;
 
