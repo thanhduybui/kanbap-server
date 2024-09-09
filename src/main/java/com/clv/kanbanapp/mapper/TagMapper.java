@@ -1,7 +1,7 @@
 package com.clv.kanbanapp.mapper;
 
 
-import com.clv.kanbanapp.dto.TagDTO;
+import com.clv.kanbanapp.dto.response.TagDTO;
 import com.clv.kanbanapp.entity.TaskTag;
 import org.mapstruct.Mapper;
 

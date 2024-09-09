@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
@@ -41,13 +42,24 @@ public class GlobalExceptionHandler {
                         .message(errors.get(0)).build());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ResponseData> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        // You can customize the response as needed
+        return ResponseEntity.badRequest().body(
+                ResponseData.builder()
+                        .status(com.clv.kanbanapp.service.ResponseStatus.ERROR.toString())
+                        .message(ex.getMessage()).build());
+    }
+
+
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ResponseData> handleValidationException(ResourceNotFoundException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ResponseData.builder()
-                        .status(com.clv.kanbanapp.service.ResponseStatus.ERROR.toString())
-                        .message(ex.getMessage()).build());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ResponseData.builder()
+                            .status(com.clv.kanbanapp.service.ResponseStatus.ERROR.toString())
+                            .message(ex.getMessage()).build());
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class})

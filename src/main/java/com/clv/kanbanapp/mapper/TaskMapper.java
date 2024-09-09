@@ -1,8 +1,8 @@
 package com.clv.kanbanapp.mapper;
 
 
-import com.clv.kanbanapp.dto.TaskDTO;
-import com.clv.kanbanapp.dto.TaskRequestBody;
+import com.clv.kanbanapp.dto.response.TaskDTO;
+import com.clv.kanbanapp.dto.request.TaskRequestBody;
 import com.clv.kanbanapp.entity.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

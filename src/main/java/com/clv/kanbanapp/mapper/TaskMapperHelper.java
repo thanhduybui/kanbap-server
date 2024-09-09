@@ -1,6 +1,6 @@
 package com.clv.kanbanapp.mapper;
 
-import com.clv.kanbanapp.dto.ProfileDTO;
+import com.clv.kanbanapp.dto.response.ProfileDTO;
 import com.clv.kanbanapp.entity.AppUser;
 import com.clv.kanbanapp.entity.TaskTag;
 import com.clv.kanbanapp.repository.AppUserRepository;

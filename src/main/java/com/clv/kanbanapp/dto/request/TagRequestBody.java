@@ -1,4 +1,4 @@
-package com.clv.kanbanapp.dto;
+package com.clv.kanbanapp.dto.request;
 
 import lombok.Data;
 

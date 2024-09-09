@@ -1,7 +1,7 @@
 package com.clv.kanbanapp.controller;
 
 
-import com.clv.kanbanapp.dto.ProfileDTO;
+import com.clv.kanbanapp.dto.response.ProfileDTO;
 import com.clv.kanbanapp.response.ResponseData;
 import com.clv.kanbanapp.response.ServiceResponse;
 import com.clv.kanbanapp.service.UserService;

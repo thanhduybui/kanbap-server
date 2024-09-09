@@ -1,9 +1,8 @@
 package com.clv.kanbanapp.service;
 
 
-import com.clv.kanbanapp.dto.TagDTO;
-import com.clv.kanbanapp.dto.TagRequestBody;
-import com.clv.kanbanapp.entity.Task;
+import com.clv.kanbanapp.dto.response.TagDTO;
+import com.clv.kanbanapp.dto.request.TagRequestBody;
 import com.clv.kanbanapp.entity.TaskTag;
 import com.clv.kanbanapp.mapper.TagMapper;
 import com.clv.kanbanapp.repository.TagRepository;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor

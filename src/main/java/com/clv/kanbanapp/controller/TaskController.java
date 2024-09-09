@@ -1,7 +1,8 @@
 package com.clv.kanbanapp.controller;
 
 
-import com.clv.kanbanapp.dto.TaskRequestBody;
+import com.clv.kanbanapp.dto.request.MoveTaskRequestBody;
+import com.clv.kanbanapp.dto.request.TaskRequestBody;
 import com.clv.kanbanapp.response.ResponseData;
 import com.clv.kanbanapp.response.ServiceResponse;
 import com.clv.kanbanapp.service.TaskService;
@@ -61,4 +62,27 @@ public class TaskController {
                         .data(serviceResponse.getData())
                         .build());
     }
+
+    @PutMapping("/{id}/take")
+    public ResponseEntity<ResponseData> takeTask(@PathVariable Long id) {
+        ServiceResponse<?> serviceResponse = taskService.takeTask(id);
+        return ResponseEntity.status(serviceResponse.getStatusCode())
+                .body(ResponseData.builder()
+                        .status(serviceResponse.getStatus())
+                        .message(serviceResponse.getMessage())
+                        .data(serviceResponse.getData())
+                        .build());
+    }
+
+    @PutMapping("/move")
+    public ResponseEntity<ResponseData> moveTask(@RequestBody @Valid MoveTaskRequestBody request) {
+        ServiceResponse<?> serviceResponse = taskService.moveTask(request);
+        return ResponseEntity.status(serviceResponse.getStatusCode())
+                .body(ResponseData.builder()
+                        .status(serviceResponse.getStatus())
+                        .message(serviceResponse.getMessage())
+                        .data(serviceResponse.getData())
+                        .build());
+    }
+
 }

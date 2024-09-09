@@ -1,8 +1,8 @@
 package com.clv.kanbanapp.service;
 
 
-import com.clv.kanbanapp.dto.LoginRequestBody;
-import com.clv.kanbanapp.dto.RegisterRequestBody;
+import com.clv.kanbanapp.dto.request.LoginRequestBody;
+import com.clv.kanbanapp.dto.request.RegisterRequestBody;
 import com.clv.kanbanapp.entity.AppUser;
 import com.clv.kanbanapp.mapper.AppUserMapper;
 import com.clv.kanbanapp.repository.AppUserRepository;

@@ -1,4 +1,4 @@
-package com.clv.kanbanapp.dto;
+package com.clv.kanbanapp.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotBlank;

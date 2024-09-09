@@ -1,8 +1,8 @@
 package com.clv.kanbanapp.controller;
 
 
-import com.clv.kanbanapp.dto.LoginRequestBody;
-import com.clv.kanbanapp.dto.RegisterRequestBody;
+import com.clv.kanbanapp.dto.request.LoginRequestBody;
+import com.clv.kanbanapp.dto.request.RegisterRequestBody;
 import com.clv.kanbanapp.response.ResponseData;
 import com.clv.kanbanapp.response.ServiceResponse;
 import com.clv.kanbanapp.service.AuthService;
