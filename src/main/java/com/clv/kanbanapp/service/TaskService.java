@@ -159,16 +159,30 @@ public class TaskService {
 
         // move in same list
         if (request.getSourceStatus().equals(request.getDestinationStatus())) {
+
             // get task position in the list
-            int destinationTaskPosition = request.getDestinationTaskPosition();
-            Task destinationTask = taskMap.get(destinationTaskPosition);
-
+            Task destinationTask = taskMap.get(request.getDestinationTaskPosition());
+            int destinationTaskPosition = destinationTask.getPosition();
             int movedTaskPosition = movedTask.getPosition();
-            movedTask.setPosition(destinationTask.getPosition());
-            destinationTask.setPosition(movedTaskPosition);
 
+            // move up
+            if (movedTaskPosition < destinationTaskPosition) {
+                for (int i = request.getDestinationTaskPosition(); i < request.getSourceTaskPosition() ;i++) {
+                    Task task = taskMap.get(i);
+                    task.setPosition(task.getPosition() - 1);
+                    taskRepository.save(task);
+                }
+            // move down
+            } else {
+                for (int i = request.getSourceTaskPosition() + 1; i <= request.getDestinationTaskPosition(); i++) {
+                    Task task = taskMap.get(i);
+                    task.setPosition(task.getPosition() + 1);
+                    taskRepository.save(task);
+                }
+            }
+            movedTask.setPosition(destinationTaskPosition);
             taskRepository.save(movedTask);
-            taskRepository.save(destinationTask);
+
         } else {
             if ( request.getDestinationTaskPosition() == 0 && tasks.isEmpty()){
                 movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
@@ -180,6 +194,18 @@ public class TaskService {
                         .message("Task moved successfully")
                         .build();
 
+            }
+
+            if(request.getDestinationTaskPosition() == tasks.size()){
+                Task destinationTask = taskMap.get(request.getDestinationTaskPosition() - 1);
+                movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
+                movedTask.setPosition(destinationTask.getPosition() - 1);
+                taskRepository.save(movedTask);
+                return ServiceResponse.builder()
+                        .statusCode(HttpStatus.OK)
+                        .status(ResponseStatus.SUCCESS.toString())
+                        .message("Task moved successfully")
+                        .build();
             }
 
 

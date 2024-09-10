@@ -41,5 +41,29 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByKeywordAndEmail(@Param("email") String email,
                                      @Param("keyword") String keyword);
 
+    @Modifying
+    @Query("UPDATE Task t SET t.position = t.position + 1 " +
+            "WHERE t.status = :status " +
+            "AND t.position > :position " +
+            "AND t.assignedUser.email = :email " +
+            "AND t.groupTask = :groupTask")
+    void incrementTaskPositionsByOne(@Param("status") TaskStatus status,
+                                     @Param("position") Integer position,
+                                     @Param("email") String email,
+                                     @Param("groupTask") boolean groupTask);
+
+
+    @Modifying
+    @Query("UPDATE Task t SET t.position = t.position - 1 " +
+            "WHERE t.status = :status " +
+            "AND t.position < :position " +
+            "AND t.assignedUser.email = :email " +
+            "AND t.groupTask = :groupTask")
+    void decrementTaskPositionsByOne(@Param("status") TaskStatus status,
+                                     @Param("position") Integer position,
+                                     @Param("email") String email,
+                                     @Param("groupTask") boolean groupTask);
+
+
 
 }
