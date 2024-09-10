@@ -85,4 +85,15 @@ public class TaskController {
                         .build());
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<ResponseData> searchTasks(@RequestParam("keyword") String keyword) {
+        ServiceResponse<?> serviceResponse = taskService.searchTasks(keyword);
+        return ResponseEntity.status(serviceResponse.getStatusCode())
+                .body(ResponseData.builder()
+                        .status(serviceResponse.getStatus())
+                        .message(serviceResponse.getMessage())
+                        .data(serviceResponse.getData())
+                        .build());
+    }
+
 }

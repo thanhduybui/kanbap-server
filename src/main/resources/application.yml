@@ -18,7 +18,7 @@ spring:
         hibernate:
           dialect: org.hibernate.dialect.PostgreSQLDialect
           default_schema: kanban
-        format_sql: true
+          format_sql: true
 server:
   servlet:
     context-path: /api/v1

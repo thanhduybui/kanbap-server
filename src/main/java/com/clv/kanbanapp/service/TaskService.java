@@ -201,4 +201,16 @@ public class TaskService {
                 .message("Task moved successfully")
                 .build();
     }
+
+    public ServiceResponse<?> searchTasks(String keyword) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<Task> availableTasks = taskRepository.findByKeywordAndEmail(email, keyword);
+        List<TaskDTO> taskDTOs = taskMapper.toListTaskDTO(availableTasks);
+
+        return ServiceResponse.builder()
+                .statusCode(HttpStatus.OK)
+                .status(ResponseStatus.SUCCESS.toString())
+                .data(Map.of("tasks", taskDTOs))
+                .build();
+    }
 }
