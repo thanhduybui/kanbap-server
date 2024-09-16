@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/tasks")
 @RequiredArgsConstructor
 public class TaskController {
-
     private final TaskService taskService;
-
     @PostMapping
     public ResponseEntity<ResponseData> createTask(@RequestBody @Valid TaskRequestBody requestBody) {
         ServiceResponse<?> serviceResponse = taskService.createTask(requestBody);
@@ -85,9 +83,10 @@ public class TaskController {
                         .build());
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<ResponseData> searchTasks(@RequestParam("keyword") String keyword) {
-        ServiceResponse<?> serviceResponse = taskService.searchTasks(keyword);
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseData> deleteTask(@PathVariable Long id) {
+        ServiceResponse<?> serviceResponse = taskService.deleteTask(id);
         return ResponseEntity.status(serviceResponse.getStatusCode())
                 .body(ResponseData.builder()
                         .status(serviceResponse.getStatus())
@@ -95,5 +94,4 @@ public class TaskController {
                         .data(serviceResponse.getData())
                         .build());
     }
-
 }

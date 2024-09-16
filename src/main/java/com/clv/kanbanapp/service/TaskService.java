@@ -36,7 +36,8 @@ public class TaskService {
     private final static String TASK_NOT_FOUND = "Task not found with id: {}";
     private final static String TASK_TAKEN_SUCCESSFULLY = "Task taken successfully";
     private final static String TASK_TAKEN_BY_ANOTHER_USER = "Private task cannot be taken by another user";
-    private final static String GROUP_TASK_CANNOT_BE_CHANGED_TO_PRIVATE = "Group task cannot be changed to private";
+    private final static String GROUP_TASK_CANNOT_BE_DELETED = "Group task cannot be deleted";
+    private final static String INVALID_DELETE_REQUEST = "Private task cannot be deleted by another user";
 
     @Transactional
     public ServiceResponse<?> createTask(TaskRequestBody requestBody) {
@@ -108,12 +109,7 @@ public class TaskService {
             task.setAssignedUser(null);
         }
 
-        if (!requestBody.getStatus().equals(task.getStatus())) {
-            taskMapper.updateTaskFromRequest(requestBody, task);
-            setTaskPosition(task, SecurityContextHolder.getContext().getAuthentication().getName());
-        } else {
-            taskMapper.updateTaskFromRequest(requestBody, task);
-        }
+        taskMapper.updateTaskFromRequest(requestBody, task);
 
         taskRepository.save(task);
         return ServiceResponse.builder()
@@ -161,7 +157,7 @@ public class TaskService {
         if (request.getSourceStatus().equals(request.getDestinationStatus())) {
 
             // get task position in the list
-            Task destinationTask = taskMap.get(request.getDestinationTaskPosition());
+            Task destinationTask = tasks.get(request.getDestinationTaskPosition());
             int destinationTaskPosition = destinationTask.getPosition();
             int movedTaskPosition = movedTask.getPosition();
 
@@ -228,15 +224,27 @@ public class TaskService {
                 .build();
     }
 
-    public ServiceResponse<?> searchTasks(String keyword) {
+
+    public ServiceResponse<?> deleteTask(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(TASK_NOT_FOUND, id)));
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<Task> availableTasks = taskRepository.findByKeywordAndEmail(email, keyword);
-        List<TaskDTO> taskDTOs = taskMapper.toListTaskDTO(availableTasks);
+
+        if (task.isGroupTask()) {
+            throw new IllegalArgumentException(GROUP_TASK_CANNOT_BE_DELETED);
+        }
+
+
+        if (!task.getAssignedUser().getEmail().equals(email)) {
+            throw new IllegalArgumentException(INVALID_DELETE_REQUEST);
+        }
+
+        taskRepository.delete(task);
 
         return ServiceResponse.builder()
                 .statusCode(HttpStatus.OK)
                 .status(ResponseStatus.SUCCESS.toString())
-                .data(Map.of("tasks", taskDTOs))
+                .message("Task deleted successfully")
                 .build();
     }
 }
