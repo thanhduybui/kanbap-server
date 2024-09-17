@@ -1,6 +1,4 @@
 package com.clv.kanbanapp.service;
-
-
 import com.clv.kanbanapp.dto.request.MoveTaskRequestBody;
 import com.clv.kanbanapp.dto.response.TaskDTO;
 import com.clv.kanbanapp.dto.request.TaskRequestBody;
@@ -13,6 +11,8 @@ import com.clv.kanbanapp.repository.AppUserRepository;
 import com.clv.kanbanapp.repository.TaskRepository;
 import com.clv.kanbanapp.response.ServiceResponse;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +38,7 @@ public class TaskService {
     private final static String TASK_TAKEN_BY_ANOTHER_USER = "Private task cannot be taken by another user";
     private final static String GROUP_TASK_CANNOT_BE_DELETED = "Group task cannot be deleted";
     private final static String INVALID_DELETE_REQUEST = "Private task cannot be deleted by another user";
+    private final static String TASK_MOVED_SUCCESSFULLY = "Task moved successfully";
 
     @Transactional
     public ServiceResponse<?> createTask(TaskRequestBody requestBody) {
@@ -139,82 +140,97 @@ public class TaskService {
                 .build();
     }
 
+//    @Transactional
+//    public ServiceResponse<?> moveTask(MoveTaskRequestBody request) {
+//        String assignedUser = SecurityContextHolder.getContext().getAuthentication().getName();
+//        Task movedTask = taskRepository.findById(request.getTaskId())
+//                .orElseThrow(() -> new ResourceNotFoundException(String.format(TASK_NOT_FOUND, request.getTaskId())));
+//        // get list dropped task
+//        List<Task> tasks = taskRepository.findPrivateTasks(TaskStatus.valueOf(request.getDestinationStatus()), assignedUser);
+//
+//        if (request.getSourceStatus().equals(request.getDestinationStatus())) {
+//            // get task position in the list
+//            Task destinationTask = tasks.get(request.getDestinationTaskPosition());
+//            int destinationTaskPosition = destinationTask.getPosition();
+//            int movedTaskPosition = movedTask.getPosition();
+//
+//            // move up
+//            if (movedTaskPosition < destinationTaskPosition) {
+//                for (int i = request.getDestinationTaskPosition(); i < request.getSourceTaskPosition() ;i++) {
+//                    Task task = tasks.get(i);
+//                    task.setPosition(task.getPosition() - 1);
+//                    taskRepository.save(task);
+//                }
+//            // move down
+//            } else {
+//                for (int i = request.getSourceTaskPosition() + 1; i <= request.getDestinationTaskPosition(); i++) {
+//                    Task task = tasks.get(i);
+//                    task.setPosition(task.getPosition() + 1);
+//                    taskRepository.save(task);
+//                }
+//            }
+//            movedTask.setPosition(destinationTaskPosition);
+//            taskRepository.save(movedTask);
+//        // move to another list
+//        } else {
+//            if ( request.getDestinationTaskPosition() == 0 && tasks.isEmpty()){
+//                movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
+//                movedTask.setPosition(0);
+//                taskRepository.save(movedTask);
+//                return ServiceResponse.builder()
+//                        .statusCode(HttpStatus.OK)
+//                        .status(ResponseStatus.SUCCESS.toString())
+//                        .message("Task moved successfully")
+//                        .build();
+//
+//            }
+//
+//            if(request.getDestinationTaskPosition() == tasks.size()){
+//                Task destinationTask = tasks.get(request.getDestinationTaskPosition() - 1);
+//                movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
+//                movedTask.setPosition(destinationTask.getPosition() - 1);
+//                taskRepository.save(movedTask);
+//                return ServiceResponse.builder()
+//                        .statusCode(HttpStatus.OK)
+//                        .status(ResponseStatus.SUCCESS.toString())
+//                        .message("Task moved successfully")
+//                        .build();
+//            }
+//
+//
+//            for (int i = request.getDestinationTaskPosition() + 1; i < tasks.size(); i++) {
+//                Task task = tasks.get(i);
+//                task.setPosition(task.getPosition() + 1);
+//                taskRepository.save(task);
+//            }
+//
+//            Task destinationTask = tasks.get(request.getDestinationTaskPosition());
+//            movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
+//            movedTask.setPosition(destinationTask.getPosition() + 1);
+//            taskRepository.save(movedTask);
+//        }
+//
+//        return ServiceResponse.builder()
+//                .statusCode(HttpStatus.OK)
+//                .status(ResponseStatus.SUCCESS.toString())
+//                .message("Task moved successfully")
+//                .build();
+//    }
+
     @Transactional
     public ServiceResponse<?> moveTask(MoveTaskRequestBody request) {
         String assignedUser = SecurityContextHolder.getContext().getAuthentication().getName();
         Task movedTask = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(TASK_NOT_FOUND, request.getTaskId())));
-        // get list dropped task
+
+        // Get list of tasks with the destination status
         List<Task> tasks = taskRepository.findPrivateTasks(TaskStatus.valueOf(request.getDestinationStatus()), assignedUser);
 
-        // create hashmap <index, task> index have format [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        HashMap<Integer, Task> taskMap = new HashMap<>();
-        for (int i = 0; i < tasks.size(); i++) {
-            taskMap.put(i, tasks.get(i));
-        }
-
-        // move in same list
+        // Handle case where task is moved within the same list
         if (request.getSourceStatus().equals(request.getDestinationStatus())) {
-
-            // get task position in the list
-            Task destinationTask = tasks.get(request.getDestinationTaskPosition());
-            int destinationTaskPosition = destinationTask.getPosition();
-            int movedTaskPosition = movedTask.getPosition();
-
-            // move up
-            if (movedTaskPosition < destinationTaskPosition) {
-                for (int i = request.getDestinationTaskPosition(); i < request.getSourceTaskPosition() ;i++) {
-                    Task task = taskMap.get(i);
-                    task.setPosition(task.getPosition() - 1);
-                    taskRepository.save(task);
-                }
-            // move down
-            } else {
-                for (int i = request.getSourceTaskPosition() + 1; i <= request.getDestinationTaskPosition(); i++) {
-                    Task task = taskMap.get(i);
-                    task.setPosition(task.getPosition() + 1);
-                    taskRepository.save(task);
-                }
-            }
-            movedTask.setPosition(destinationTaskPosition);
-            taskRepository.save(movedTask);
-
+            moveWithinSameList(movedTask, tasks, request.getSourceTaskPosition(), request.getDestinationTaskPosition());
         } else {
-            if ( request.getDestinationTaskPosition() == 0 && tasks.isEmpty()){
-                movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
-                movedTask.setPosition(0);
-                taskRepository.save(movedTask);
-                return ServiceResponse.builder()
-                        .statusCode(HttpStatus.OK)
-                        .status(ResponseStatus.SUCCESS.toString())
-                        .message("Task moved successfully")
-                        .build();
-
-            }
-
-            if(request.getDestinationTaskPosition() == tasks.size()){
-                Task destinationTask = taskMap.get(request.getDestinationTaskPosition() - 1);
-                movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
-                movedTask.setPosition(destinationTask.getPosition() - 1);
-                taskRepository.save(movedTask);
-                return ServiceResponse.builder()
-                        .statusCode(HttpStatus.OK)
-                        .status(ResponseStatus.SUCCESS.toString())
-                        .message("Task moved successfully")
-                        .build();
-            }
-
-
-            for (int i = request.getDestinationTaskPosition() + 1; i < taskMap.size(); i++) {
-                Task task = taskMap.get(i);
-                task.setPosition(task.getPosition() + 1);
-                taskRepository.save(task);
-            }
-
-            Task destinationTask = taskMap.get(request.getDestinationTaskPosition());
-            movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
-            movedTask.setPosition(destinationTask.getPosition() + 1);
-            taskRepository.save(movedTask);
+            moveToDifferentList(movedTask, tasks, request);
         }
 
         return ServiceResponse.builder()
@@ -223,6 +239,76 @@ public class TaskService {
                 .message("Task moved successfully")
                 .build();
     }
+
+    public void moveWithinSameList(Task movedTask, List<Task> tasks, int sourceTaskPosition, int destinationTaskPosition) {
+        Task destinationTask = tasks.get(destinationTaskPosition);
+        int destinationTaskPositionValue = destinationTask.getPosition();
+        int movedTaskPosition = movedTask.getPosition();
+
+        // Move up or down based on the current position
+        if (movedTaskPosition < destinationTaskPositionValue) {
+            moveUp(tasks, sourceTaskPosition, destinationTaskPosition);
+        } else {
+            moveDown(tasks, sourceTaskPosition, destinationTaskPosition);
+        }
+
+        // Update the moved task's position
+        movedTask.setPosition(destinationTaskPositionValue);
+        taskRepository.save(movedTask);
+    }
+
+    public void moveUp(List<Task> tasks, int sourceTaskPosition, int destinationTaskPosition) {
+        for (int i = destinationTaskPosition; i < sourceTaskPosition; i++) {
+            Task task = tasks.get(i);
+            task.setPosition(task.getPosition() - 1);
+            taskRepository.save(task);
+        }
+    }
+
+    public void moveDown(List<Task> tasks, int sourceTaskPosition, int destinationTaskPosition) {
+        for (int i = sourceTaskPosition + 1; i <= destinationTaskPosition; i++) {
+            Task task = tasks.get(i);
+            task.setPosition(task.getPosition() + 1);
+            taskRepository.save(task);
+        }
+    }
+
+    public void moveToDifferentList(Task movedTask, List<Task> tasks, MoveTaskRequestBody request) {
+        if (request.getDestinationTaskPosition() == 0 && tasks.isEmpty()) {
+            moveToEmptyList(movedTask, request.getDestinationStatus());
+        } else if (request.getDestinationTaskPosition() == tasks.size()) {
+            moveToEndOfList(movedTask, tasks, request.getDestinationStatus());
+        } else {
+            moveToMiddleOfList(movedTask, tasks, request.getDestinationTaskPosition(), request.getDestinationStatus());
+        }
+    }
+
+    public void moveToEmptyList(Task movedTask, String destinationStatus) {
+        movedTask.setStatus(TaskStatus.valueOf(destinationStatus));
+        movedTask.setPosition(0);
+        taskRepository.save(movedTask);
+    }
+
+    public void moveToEndOfList(Task movedTask, List<Task> tasks, String destinationStatus) {
+        Task lastTask = tasks.get(tasks.size() - 1);
+        movedTask.setStatus(TaskStatus.valueOf(destinationStatus));
+        movedTask.setPosition(lastTask.getPosition() - 1);
+        taskRepository.save(movedTask);
+    }
+
+    public void moveToMiddleOfList(Task movedTask, List<Task> tasks, int destinationTaskPosition, String destinationStatus) {
+        for (int i = destinationTaskPosition + 1; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            task.setPosition(task.getPosition() + 1);
+            taskRepository.save(task);
+        }
+
+        Task destinationTask = tasks.get(destinationTaskPosition);
+        movedTask.setStatus(TaskStatus.valueOf(destinationStatus));
+        movedTask.setPosition(destinationTask.getPosition() + 1);
+        taskRepository.save(movedTask);
+    }
+
 
 
     public ServiceResponse<?> deleteTask(Long id) {
@@ -244,7 +330,7 @@ public class TaskService {
         return ServiceResponse.builder()
                 .statusCode(HttpStatus.OK)
                 .status(ResponseStatus.SUCCESS.toString())
-                .message("Task deleted successfully")
+                .message(TASK_MOVED_SUCCESSFULLY)
                 .build();
     }
 }

@@ -3,11 +3,13 @@ package com.clv.kanbanapp.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 @Builder
 @Data
+@AllArgsConstructor
 public class MoveTaskRequestBody {
     @NotNull(message = "Task ID is required")
     private Long taskId;

@@ -24,41 +24,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("SELECT t FROM Task t WHERE t.status = :status AND t.groupTask = true ORDER BY t.position DESC")
     List<Task> findPublicTasksByStatus(TaskStatus status);
 
-
-
     @Query("SELECT MAX(t.position) FROM Task t WHERE t.status = :status " +
             "AND ((:isGroupTask = true) OR " +
             "(:isGroupTask = false AND t.assignedUser.email = :userEmail))")
     Integer findMaxPosition(@Param("status") TaskStatus status,
                             @Param("userEmail") String userEmail,
                             @Param("isGroupTask") boolean isPublic);
-
-
-
-
-//    @Modifying
-//    @Query("UPDATE Task t SET t.position = t.position + 1 " +
-//            "WHERE t.status = :status " +
-//            "AND t.position > :position " +
-//            "AND t.assignedUser.email = :email " +
-//            "AND t.groupTask = :groupTask")
-//    void incrementTaskPositionsByOne(@Param("status") TaskStatus status,
-//                                     @Param("position") Integer position,
-//                                     @Param("email") String email,
-//                                     @Param("groupTask") boolean groupTask);
-//
-//
-//    @Modifying
-//    @Query("UPDATE Task t SET t.position = t.position - 1 " +
-//            "WHERE t.status = :status " +
-//            "AND t.position < :position " +
-//            "AND t.assignedUser.email = :email " +
-//            "AND t.groupTask = :groupTask")
-//    void decrementTaskPositionsByOne(@Param("status") TaskStatus status,
-//                                     @Param("position") Integer position,
-//                                     @Param("email") String email,
-//                                     @Param("groupTask") boolean groupTask);
-
-
 
 }

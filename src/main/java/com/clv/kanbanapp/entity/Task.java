@@ -19,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 @EntityListeners(AuditingEntityListener.class)
 public class Task {
     @Id
