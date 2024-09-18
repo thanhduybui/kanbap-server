@@ -1,6 +1,7 @@
 package com.clv.kanbanapp.controller;
 
 
+import com.clv.kanbanapp.dto.request.ImageRequestBody;
 import com.clv.kanbanapp.dto.request.MoveTaskRequestBody;
 import com.clv.kanbanapp.dto.request.TaskRequestBody;
 import com.clv.kanbanapp.response.ResponseData;
@@ -83,10 +84,31 @@ public class TaskController {
                         .build());
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseData> deleteTask(@PathVariable Long id) {
         ServiceResponse<?> serviceResponse = taskService.deleteTask(id);
+        return ResponseEntity.status(serviceResponse.getStatusCode())
+                .body(ResponseData.builder()
+                        .status(serviceResponse.getStatus())
+                        .message(serviceResponse.getMessage())
+                        .data(serviceResponse.getData())
+                        .build());
+    }
+
+    @PutMapping("/{id}/images")
+    public ResponseEntity<ResponseData> addTaskImage(@PathVariable Long id, @RequestBody @Valid ImageRequestBody img) {
+        ServiceResponse<?> serviceResponse = taskService.addTaskImage(id, img.getUrl());
+        return ResponseEntity.status(serviceResponse.getStatusCode())
+                .body(ResponseData.builder()
+                        .status(serviceResponse.getStatus())
+                        .message(serviceResponse.getMessage())
+                        .data(serviceResponse.getData())
+                        .build());
+    }
+
+    @GetMapping("/{id}/images")
+    public ResponseEntity<ResponseData> getTaskImages(@PathVariable Long id) {
+        ServiceResponse<?> serviceResponse = taskService.getTaskImages(id);
         return ResponseEntity.status(serviceResponse.getStatusCode())
                 .body(ResponseData.builder()
                         .status(serviceResponse.getStatus())

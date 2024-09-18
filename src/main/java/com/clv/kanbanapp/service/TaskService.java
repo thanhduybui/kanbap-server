@@ -3,11 +3,13 @@ import com.clv.kanbanapp.dto.request.MoveTaskRequestBody;
 import com.clv.kanbanapp.dto.response.TaskDTO;
 import com.clv.kanbanapp.dto.request.TaskRequestBody;
 import com.clv.kanbanapp.entity.AppUser;
+import com.clv.kanbanapp.entity.Image;
 import com.clv.kanbanapp.entity.Task;
 import com.clv.kanbanapp.entity.TaskStatus;
 import com.clv.kanbanapp.exception.ResourceNotFoundException;
 import com.clv.kanbanapp.mapper.TaskMapper;
 import com.clv.kanbanapp.repository.AppUserRepository;
+import com.clv.kanbanapp.repository.ImageRepository;
 import com.clv.kanbanapp.repository.TaskRepository;
 import com.clv.kanbanapp.response.ServiceResponse;
 import jakarta.transaction.Transactional;
@@ -31,6 +33,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
     private final AppUserRepository appUserRepository;
+    private final ImageRepository imageRepository;
     private final static String TASK_CREATED_SUCCESSFULLY = "Task created successfully";
     private final static String TASK_UPDATED_SUCCESSFULLY = "Task updated successfully";
     private final static String TASK_NOT_FOUND = "Task not found with id: {}";
@@ -140,83 +143,6 @@ public class TaskService {
                 .build();
     }
 
-//    @Transactional
-//    public ServiceResponse<?> moveTask(MoveTaskRequestBody request) {
-//        String assignedUser = SecurityContextHolder.getContext().getAuthentication().getName();
-//        Task movedTask = taskRepository.findById(request.getTaskId())
-//                .orElseThrow(() -> new ResourceNotFoundException(String.format(TASK_NOT_FOUND, request.getTaskId())));
-//        // get list dropped task
-//        List<Task> tasks = taskRepository.findPrivateTasks(TaskStatus.valueOf(request.getDestinationStatus()), assignedUser);
-//
-//        if (request.getSourceStatus().equals(request.getDestinationStatus())) {
-//            // get task position in the list
-//            Task destinationTask = tasks.get(request.getDestinationTaskPosition());
-//            int destinationTaskPosition = destinationTask.getPosition();
-//            int movedTaskPosition = movedTask.getPosition();
-//
-//            // move up
-//            if (movedTaskPosition < destinationTaskPosition) {
-//                for (int i = request.getDestinationTaskPosition(); i < request.getSourceTaskPosition() ;i++) {
-//                    Task task = tasks.get(i);
-//                    task.setPosition(task.getPosition() - 1);
-//                    taskRepository.save(task);
-//                }
-//            // move down
-//            } else {
-//                for (int i = request.getSourceTaskPosition() + 1; i <= request.getDestinationTaskPosition(); i++) {
-//                    Task task = tasks.get(i);
-//                    task.setPosition(task.getPosition() + 1);
-//                    taskRepository.save(task);
-//                }
-//            }
-//            movedTask.setPosition(destinationTaskPosition);
-//            taskRepository.save(movedTask);
-//        // move to another list
-//        } else {
-//            if ( request.getDestinationTaskPosition() == 0 && tasks.isEmpty()){
-//                movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
-//                movedTask.setPosition(0);
-//                taskRepository.save(movedTask);
-//                return ServiceResponse.builder()
-//                        .statusCode(HttpStatus.OK)
-//                        .status(ResponseStatus.SUCCESS.toString())
-//                        .message("Task moved successfully")
-//                        .build();
-//
-//            }
-//
-//            if(request.getDestinationTaskPosition() == tasks.size()){
-//                Task destinationTask = tasks.get(request.getDestinationTaskPosition() - 1);
-//                movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
-//                movedTask.setPosition(destinationTask.getPosition() - 1);
-//                taskRepository.save(movedTask);
-//                return ServiceResponse.builder()
-//                        .statusCode(HttpStatus.OK)
-//                        .status(ResponseStatus.SUCCESS.toString())
-//                        .message("Task moved successfully")
-//                        .build();
-//            }
-//
-//
-//            for (int i = request.getDestinationTaskPosition() + 1; i < tasks.size(); i++) {
-//                Task task = tasks.get(i);
-//                task.setPosition(task.getPosition() + 1);
-//                taskRepository.save(task);
-//            }
-//
-//            Task destinationTask = tasks.get(request.getDestinationTaskPosition());
-//            movedTask.setStatus(TaskStatus.valueOf(request.getDestinationStatus()));
-//            movedTask.setPosition(destinationTask.getPosition() + 1);
-//            taskRepository.save(movedTask);
-//        }
-//
-//        return ServiceResponse.builder()
-//                .statusCode(HttpStatus.OK)
-//                .status(ResponseStatus.SUCCESS.toString())
-//                .message("Task moved successfully")
-//                .build();
-//    }
-
     @Transactional
     public ServiceResponse<?> moveTask(MoveTaskRequestBody request) {
         String assignedUser = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -325,12 +251,50 @@ public class TaskService {
             throw new IllegalArgumentException(INVALID_DELETE_REQUEST);
         }
 
+
+        List<Image> images = task.getImages();
+
+
+        imageRepository.deleteAll(images);
         taskRepository.delete(task);
 
         return ServiceResponse.builder()
                 .statusCode(HttpStatus.OK)
                 .status(ResponseStatus.SUCCESS.toString())
                 .message(TASK_MOVED_SUCCESSFULLY)
+                .build();
+    }
+
+    public ServiceResponse<?> addTaskImage(Long id, String imageUrl) {
+        // Validate that imageUrl is not null or empty
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            throw new IllegalArgumentException("Image URL cannot be null or empty");
+        }
+
+        // Find the task by ID or throw an exception if not found
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(TASK_NOT_FOUND, id)));
+
+        // Add the new image to the task's images list
+        imageRepository.save(Image.builder().imgUrl(imageUrl).task(task).build());
+
+        // Return success response
+        return ServiceResponse.builder()
+                .statusCode(HttpStatus.OK)
+                .status(ResponseStatus.SUCCESS.toString())
+                .message("Image added successfully")
+                .build();
+    }
+
+    public ServiceResponse<?> getTaskImages(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(TASK_NOT_FOUND, id)));
+
+        List<Image> images = task.getImages();
+        return ServiceResponse.builder()
+                .statusCode(HttpStatus.OK)
+                .status(ResponseStatus.SUCCESS.toString())
+                .data(Map.of("images", images))
                 .build();
     }
 }

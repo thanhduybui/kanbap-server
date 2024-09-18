@@ -1,8 +1,10 @@
 package com.clv.kanbanapp.mapper;
 
 
+import com.clv.kanbanapp.dto.response.ImageDTO;
 import com.clv.kanbanapp.dto.response.TaskDTO;
 import com.clv.kanbanapp.dto.request.TaskRequestBody;
+import com.clv.kanbanapp.entity.Image;
 import com.clv.kanbanapp.entity.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,6 +20,10 @@ public interface TaskMapper {
     Task toEntity(TaskRequestBody requestBody);
 
     TaskDTO toDTO(Task task);
+
+    ImageDTO toImageDTO(Image image);
+
+    List<ImageDTO> toListImageDTO(List<Image> images);
 
     List<TaskDTO> toListTaskDTO(List<Task> tasks);
 

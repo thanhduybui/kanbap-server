@@ -57,16 +57,15 @@ public class Task {
     @JsonIgnore
     private TaskTag tag;
 
-    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Comment> comments;
-
     @Column(name="due_time")
     private Instant dueTime;
 
     @Column(name = "created_date", updatable = false)
     @CreatedDate
     private Instant createdDate;
+
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    private List<Image> images;
 
     @Column(name = "updated_date")
     @LastModifiedDate

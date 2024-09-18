@@ -32,9 +32,6 @@ public class AppUser  {
     @Column(name = "join_date")
     private Instant joinDate;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Comment> comments;
-
     @OneToMany(mappedBy = "assignedUser", fetch = FetchType.LAZY)
     private List<Task> tasks;
 }
