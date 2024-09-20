@@ -1,8 +1,8 @@
 package com.clv.kanbanapp.controller;
 
 import com.clv.kanbanapp.dto.request.TagRequestBody;
-import com.clv.kanbanapp.response.ResponseData;
-import com.clv.kanbanapp.response.ServiceResponse;
+import com.clv.kanbanapp.dto.response.ResponseData;
+import com.clv.kanbanapp.dto.response.ServiceResponse;
 import com.clv.kanbanapp.service.TagService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

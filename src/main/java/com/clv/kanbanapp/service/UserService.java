@@ -4,7 +4,7 @@ import com.clv.kanbanapp.dto.response.ProfileDTO;
 import com.clv.kanbanapp.entity.AppUser;
 import com.clv.kanbanapp.exception.ResourceNotFoundException;
 import com.clv.kanbanapp.repository.AppUserRepository;
-import com.clv.kanbanapp.response.ServiceResponse;
+import com.clv.kanbanapp.dto.response.ServiceResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

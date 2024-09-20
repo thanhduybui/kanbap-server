@@ -1,4 +1,4 @@
-package com.clv.kanbanapp.response;
+package com.clv.kanbanapp.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

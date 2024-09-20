@@ -6,7 +6,7 @@ import com.clv.kanbanapp.dto.request.TagRequestBody;
 import com.clv.kanbanapp.entity.TaskTag;
 import com.clv.kanbanapp.mapper.TagMapper;
 import com.clv.kanbanapp.repository.TagRepository;
-import com.clv.kanbanapp.response.ServiceResponse;
+import com.clv.kanbanapp.dto.response.ServiceResponse;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -1,7 +1,7 @@
 package com.clv.kanbanapp.exception;
 
 
-import com.clv.kanbanapp.response.ResponseData;
+import com.clv.kanbanapp.dto.response.ResponseData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

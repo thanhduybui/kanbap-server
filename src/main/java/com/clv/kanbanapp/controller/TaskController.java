@@ -4,13 +4,18 @@ package com.clv.kanbanapp.controller;
 import com.clv.kanbanapp.dto.request.ImageRequestBody;
 import com.clv.kanbanapp.dto.request.MoveTaskRequestBody;
 import com.clv.kanbanapp.dto.request.TaskRequestBody;
-import com.clv.kanbanapp.response.ResponseData;
-import com.clv.kanbanapp.response.ServiceResponse;
+import com.clv.kanbanapp.dto.response.ResponseData;
+import com.clv.kanbanapp.dto.response.ServiceResponse;
 import com.clv.kanbanapp.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+
+
 
 @RestController
 @RequestMapping("/tasks")
@@ -41,8 +46,16 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseData> getTasks(@RequestParam("status") String status, @RequestParam("isPublic") Boolean isPublic ) {
-        ServiceResponse<?> serviceResponse = taskService.getTasks(status, isPublic);
+    public ResponseEntity<ResponseData> getTasks(@RequestParam("status") String status, @RequestParam("isPublic") Boolean isPublic,
+                                                 @RequestParam(value = "page", required = false) Integer page,
+                                                 @RequestParam(value = "size", required = false) Integer size) {
+
+        Pageable pageable = Pageable.unpaged() ;
+
+        if (page != null && size != null){
+           pageable = PageRequest.of(page, size);
+        }
+        ServiceResponse<?> serviceResponse = taskService.getTasks(status, isPublic, pageable);
         return ResponseEntity.status(serviceResponse.getStatusCode())
                 .body(ResponseData.builder()
                         .status(serviceResponse.getStatus())
@@ -63,8 +76,9 @@ public class TaskController {
     }
 
     @PutMapping("/{id}/take")
-    public ResponseEntity<ResponseData> takeTask(@PathVariable Long id) {
-        ServiceResponse<?> serviceResponse = taskService.takeTask(id);
+    public ResponseEntity<ResponseData> takeTask(@PathVariable Long id,
+                                                 @RequestParam(value = "unTake", required = false, defaultValue = "true") boolean unTake) {
+        ServiceResponse<?> serviceResponse = taskService.assignTask(id, unTake);
         return ResponseEntity.status(serviceResponse.getStatusCode())
                 .body(ResponseData.builder()
                         .status(serviceResponse.getStatus())

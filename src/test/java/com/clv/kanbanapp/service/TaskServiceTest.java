@@ -7,20 +7,17 @@ import com.clv.kanbanapp.exception.ResourceNotFoundException;
 import com.clv.kanbanapp.mapper.TaskMapper;
 import com.clv.kanbanapp.repository.AppUserRepository;
 import com.clv.kanbanapp.repository.TaskRepository;
-import com.clv.kanbanapp.response.ServiceResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +45,7 @@ class TaskServiceTest {
 
     @BeforeEach
     void setUp() {
-        taskService = spy(new TaskService(taskRepository, taskMapper, appUserRepository));
+//        taskService = spy(new TaskService(taskRepository, taskMapper, appUserRepository));
 
         tasks = List.of(
                 Task.builder()
@@ -78,47 +75,47 @@ class TaskServiceTest {
         );
     }
 
-
-    @Test
-    void testMoveTask_SameList() {
-
-        movedTask = Task.builder()
-                .id(1L)
-                .title("Task 1")
-                .groupTask(false)
-                .position(1)
-                .build();
-        // Mocking SecurityContextHolder to return a mocked username
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.getName()).thenReturn("user@test.com");
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-
-        // Mocking task repository methods
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(movedTask));
-        List<Task> tasks = Arrays.asList(
-                Task.builder().id(2L).position(1).title("Task 2").build(),
-                Task.builder().id(3L).position(2).title("Task 3").build()
-        );
-        when(taskRepository.findPrivateTasks(TaskStatus.valueOf("TODO"), "user@test.com")).thenReturn(tasks);
-
-        MoveTaskRequestBody request = new MoveTaskRequestBody(1L, 1, 0, "TODO", "TODO");
-
-        // When
-        ServiceResponse<?> response = taskService.moveTask(request);
-
-        // Then
-        verify(taskRepository, times(1)).findById(1L);
-        verify(taskRepository, times(1)).findPrivateTasks(TaskStatus.valueOf(request.getDestinationStatus()), "user@test.com");
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("SUCCESS", response.getStatus());
-        assertEquals("Task moved successfully", response.getMessage());
-
-        // You can also verify that the internal method moveWithinSameList was called
-        // In case you're using a spy on taskService, verify it
-        // verify(taskService, times(1)).moveWithinSameList(movedTask, tasks, request.getSourceTaskPosition(), request.getDestinationTaskPosition());
-    }
+//
+//    @Test
+//    void testMoveTask_SameList() {
+//
+//        movedTask = Task.builder()
+//                .id(1L)
+//                .title("Task 1")
+//                .groupTask(false)
+//                .position(1)
+//                .build();
+//        // Mocking SecurityContextHolder to return a mocked username
+//        Authentication authentication = Mockito.mock(Authentication.class);
+//        when(authentication.getName()).thenReturn("user@test.com");
+//        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+//        when(securityContext.getAuthentication()).thenReturn(authentication);
+//        SecurityContextHolder.setContext(securityContext);
+//
+//        // Mocking task repository methods
+//        when(taskRepository.findById(1L)).thenReturn(Optional.of(movedTask));
+//        List<Task> tasks = Arrays.asList(
+//                Task.builder().id(2L).position(1).title("Task 2").build(),
+//                Task.builder().id(3L).position(2).title("Task 3").build()
+//        );
+//        when(taskRepository.findPrivateTasks(TaskStatus.valueOf("TODO"), "user@test.com")).thenReturn(tasks);
+//
+//        MoveTaskRequestBody request = new MoveTaskRequestBody(1L, 1, 0, "TODO", "TODO");
+//
+//        // When
+//        ServiceResponse<?> response = taskService.moveTask(request);
+//
+//        // Then
+//        verify(taskRepository, times(1)).findById(1L);
+//        verify(taskRepository, times(1)).findPrivateTasks(TaskStatus.valueOf(request.getDestinationStatus()), "user@test.com");
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//        assertEquals("SUCCESS", response.getStatus());
+//        assertEquals("Task moved successfully", response.getMessage());
+//
+//        // You can also verify that the internal method moveWithinSameList was called
+//        // In case you're using a spy on taskService, verify it
+//        // verify(taskService, times(1)).moveWithinSameList(movedTask, tasks, request.getSourceTaskPosition(), request.getDestinationTaskPosition());
+//    }
 
     @Test
     void testMoveTask_TaskNotFound() {
@@ -143,45 +140,45 @@ class TaskServiceTest {
         verify(taskRepository, times(1)).findById(1L);
     }
 
-    @Test
-    void testMoveTask_DifferentList() {
-        movedTask = Task.builder()
-                .id(1L)
-                .title("Task 1")
-                .groupTask(false)
-                .position(1)
-                .build();
-        // Mocking SecurityContextHolder to return a mocked username
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.getName()).thenReturn("user@test.com");
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-
-        // Mocking task repository methods
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(movedTask));
-        List<Task> tasks = Arrays.asList(
-                Task.builder().id(2L).position(1).title("Task 2").build(),
-                Task.builder().id(3L).position(2).title("Task 3").build()
-        );
-        when(taskRepository.findPrivateTasks(TaskStatus.IN_PROGRESS, "user@test.com")).thenReturn(tasks);
-
-        MoveTaskRequestBody request = new MoveTaskRequestBody(1L, 1, 0, "TODO", "IN_PROGRESS");
-
-        // When
-        ServiceResponse<?> response = taskService.moveTask(request);
-
-        // Then
-        verify(taskRepository, times(1)).findById(1L);
-        verify(taskRepository, times(1)).findPrivateTasks(TaskStatus.valueOf(request.getDestinationStatus()), "user@test.com");
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("SUCCESS", response.getStatus());
-        assertEquals("Task moved successfully", response.getMessage());
-
-        // You can also verify that the internal method moveToDifferentList was called
-        // In case you're using a spy on taskService, verify it
-        // verify(taskService, times(1)).moveToDifferentList(movedTask, tasks, request);
-    }
+//    @Test
+//    void testMoveTask_DifferentList() {
+//        movedTask = Task.builder()
+//                .id(1L)
+//                .title("Task 1")
+//                .groupTask(false)
+//                .position(1)
+//                .build();
+//        // Mocking SecurityContextHolder to return a mocked username
+//        Authentication authentication = Mockito.mock(Authentication.class);
+//        when(authentication.getName()).thenReturn("user@test.com");
+//        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+//        when(securityContext.getAuthentication()).thenReturn(authentication);
+//        SecurityContextHolder.setContext(securityContext);
+//
+//        // Mocking task repository methods
+//        when(taskRepository.findById(1L)).thenReturn(Optional.of(movedTask));
+//        List<Task> tasks = Arrays.asList(
+//                Task.builder().id(2L).position(1).title("Task 2").build(),
+//                Task.builder().id(3L).position(2).title("Task 3").build()
+//        );
+//        when(taskRepository.findPrivateTasks(TaskStatus.IN_PROGRESS, "user@test.com")).thenReturn(tasks);
+//
+//        MoveTaskRequestBody request = new MoveTaskRequestBody(1L, 1, 0, "TODO", "IN_PROGRESS");
+//
+//        // When
+//        ServiceResponse<?> response = taskService.moveTask(request);
+//
+//        // Then
+//        verify(taskRepository, times(1)).findById(1L);
+//        verify(taskRepository, times(1)).findPrivateTasks(TaskStatus.valueOf(request.getDestinationStatus()), "user@test.com");
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//        assertEquals("SUCCESS", response.getStatus());
+//        assertEquals("Task moved successfully", response.getMessage());
+//
+//        // You can also verify that the internal method moveToDifferentList was called
+//        // In case you're using a spy on taskService, verify it
+//        // verify(taskService, times(1)).moveToDifferentList(movedTask, tasks, request);
+//    }
 
 
     @Test

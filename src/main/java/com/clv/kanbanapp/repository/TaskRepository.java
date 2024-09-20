@@ -3,6 +3,7 @@ package com.clv.kanbanapp.repository;
 import com.clv.kanbanapp.entity.Task;
 import com.clv.kanbanapp.entity.TaskStatus;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,11 +19,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "ORDER BY t.position DESC")
     List<Task> findPrivateTasks(
             @Param("status") TaskStatus status,
-            @Param("userEmail") String userEmail
+            @Param("userEmail") String userEmail,
+            Pageable pageable
     );
 
     @Query("SELECT t FROM Task t WHERE t.status = :status AND t.groupTask = true ORDER BY t.position DESC")
-    List<Task> findPublicTasksByStatus(TaskStatus status);
+    List<Task> findPublicTasksByStatus(TaskStatus status, Pageable pageable);
 
     @Query("SELECT MAX(t.position) FROM Task t WHERE t.status = :status " +
             "AND ((:isGroupTask = true) OR " +
@@ -31,4 +33,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                             @Param("userEmail") String userEmail,
                             @Param("isGroupTask") boolean isPublic);
 
+    @Query("SELECT MAX(t.position) FROM Task t WHERE t.status = :status " +
+            "AND ((t.groupTask = false AND t.assignedUser.email = :userEmail) " +
+            "OR (t.groupTask = true AND t.assignedUser.email = :userEmail))")
+    Integer findMaxPositionForPrivateTasks(
+            @Param("status") TaskStatus status,
+            @Param("userEmail") String userEmail
+    );
 }

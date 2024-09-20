@@ -1,4 +1,4 @@
-package com.clv.kanbanapp.response;
+package com.clv.kanbanapp.dto.response;
 
 import lombok.Builder;
 import lombok.Data;

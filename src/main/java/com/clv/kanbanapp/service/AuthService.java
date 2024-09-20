@@ -6,7 +6,7 @@ import com.clv.kanbanapp.dto.request.RegisterRequestBody;
 import com.clv.kanbanapp.entity.AppUser;
 import com.clv.kanbanapp.mapper.AppUserMapper;
 import com.clv.kanbanapp.repository.AppUserRepository;
-import com.clv.kanbanapp.response.ServiceResponse;
+import com.clv.kanbanapp.dto.response.ServiceResponse;
 import com.clv.kanbanapp.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
