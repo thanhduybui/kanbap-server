@@ -17,6 +17,7 @@ import java.util.List;
 public interface TaskMapper {
 
     @Mapping(target = "tag", source = "tagId")
+    @Mapping(target = "images", ignore = true)
     Task toEntity(TaskRequestBody requestBody);
 
     TaskDTO toDTO(Task task);
@@ -28,5 +29,6 @@ public interface TaskMapper {
     List<TaskDTO> toListTaskDTO(List<Task> tasks);
 
     @Mapping(target = "tag", source = "tagId")
+    @Mapping(target = "images", ignore = true)
     void updateTaskFromRequest(TaskRequestBody requestBody,@MappingTarget Task task);
 }

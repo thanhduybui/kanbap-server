@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,16 +47,41 @@ public class TaskService {
     /* Create new task */
     @Transactional
     public ServiceResponse<?> createTask(TaskRequestBody requestBody) {
+        // Convert the request body to Task entity using a mapper (assuming taskMapper exists)
         Task task = taskMapper.toEntity(requestBody);
+
+        // Get the email of the user creating the task from the security context
         String createdUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        // if task is not a group task, assign it to the created user
+
+        // If the task is not a group task, assign it to the created user
         if (!requestBody.isGroupTask()) {
-            AppUser user = appUserRepository.findByEmail(createdUserEmail).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            AppUser user = appUserRepository.findByEmail(createdUserEmail)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             task.setAssignedUser(user);
         }
-        // service update the task position is the max position in the task list
+
+        // Set the task's position as the max position in the user's task list
         setTaskPosition(task, createdUserEmail);
-        taskRepository.save(task);
+
+        // Save the task (images will be saved automatically because of CascadeType.PERSIST)
+        Task savedTask = taskRepository.save(task);
+
+        List<Image> images = new ArrayList<>();
+        // If there are images in the request, add them to the task
+        if (requestBody.getImages() != null && !requestBody.getImages().isEmpty()) {
+            requestBody.getImages().forEach(imageUrl -> {
+                Image image = Image.builder()
+                        .imgUrl(imageUrl)
+                        .task(savedTask)
+                        .build();
+                images.add(image);  // The addImage method in the Task entity ensures task_id is set
+            });
+        }
+        task.setImages(images);
+
+
+
+        // Build the response
         return ServiceResponse.builder()
                 .statusCode(HttpStatus.CREATED)
                 .status(ResponseStatus.SUCCESS.toString())
@@ -86,7 +112,7 @@ public class TaskService {
 
     /* Get tasks, filter by access scope (public or private),
     status and the user who do tasks*/
-    public ServiceResponse getTasks(String status, boolean isPublic, Pageable pageable) {
+    public ServiceResponse<?> getTasks(String status, boolean isPublic, Pageable pageable) {
 
         log.info("Getting tasks with status: {} and isPublic: {}", status, isPublic);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

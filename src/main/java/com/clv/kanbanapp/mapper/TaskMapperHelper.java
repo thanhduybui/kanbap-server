@@ -2,12 +2,15 @@ package com.clv.kanbanapp.mapper;
 
 import com.clv.kanbanapp.dto.response.ProfileDTO;
 import com.clv.kanbanapp.entity.AppUser;
+import com.clv.kanbanapp.entity.Image;
 import com.clv.kanbanapp.entity.TaskTag;
 import com.clv.kanbanapp.repository.AppUserRepository;
 import com.clv.kanbanapp.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -31,5 +34,4 @@ public class TaskMapperHelper {
                 .email(email)
                 .build();
     }
-
 }

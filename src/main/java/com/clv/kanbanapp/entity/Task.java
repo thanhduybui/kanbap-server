@@ -70,9 +70,4 @@ public class Task {
     @Column(name = "updated_date")
     @LastModifiedDate
     private Instant updatedDate;
-
-    @PrePersist
-    public void onCreate() {
-        System.out.println("Task created");
-    }
 }
